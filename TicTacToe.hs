@@ -119,9 +119,14 @@ swapPlayer X = O
 swapPlayer O = X
 
 --Function specifies what values in the board should be shown as
+--For use in prettyPrint
+--Added spaces at the end because calling intersperse after the 
+--concatenation of printCell and cells messes up compilation with colours
 printCell :: Cell -> String
-printCell Empty = "-"
-printCell (Taken x) = show x
+printCell Empty = "- "
+printCell (Taken x)
+  | x == X    = "\x1b[31m" ++ fgRed (show x) ++ "\x1b[39m" ++ " "
+  | otherwise = "\x1b[35m" ++ fgMagenta (show x) ++ "\x1b[39m" ++ " "
 
 
 -------------------------------------------------------------------
@@ -142,7 +147,7 @@ prettyPrint b
       prettyPrint' :: [Cell] -> IO ()
       prettyPrint' cells
         = do
-            putStrLn (intersperse ' ' (concatMap printCell cells))
+            putStrLn (concatMap printCell cells)
 
 doParseAction :: (String -> Maybe a) -> String -> IO a
 doParseAction f errorMsg
@@ -170,10 +175,9 @@ takeTurn b pl
 
      
 
--- Manage a game by repeatedly: 1. printing the current board, 2. using
--- takeTurn to return a modified board, 3. checking if the game is over,
--- printing the board and a suitable congratulatory message to the winner
--- if so.
+--Uses gameOver' to check who won or whether there is a draw
+--Prints the board if no result yet
+--Allows the game to continue until result reached
 playGame :: Board -> Player -> IO ()
 playGame b pl
   = do
@@ -186,7 +190,7 @@ playGame b pl
           do
             putStrLn $ "Player:  " ++ show pl
             prettyPrint b
-            --Plays game with opponent's move and updated board
+            --Plays game with opponent's move and updated board (Monadic operator)
             takeTurn b pl >>= flip playGame (swapPlayer pl)
 
 -- Print a welcome message, read the board dimension, invoke playGame and
@@ -237,3 +241,32 @@ testBoard3
       Taken O,Taken X,Empty,Empty,Taken X,
       Taken X,Empty,Taken O,Empty,Empty],
       5)
+
+-- Uses ansi codes to "colour" strings
+-- Only works on *nix like systems I believe
+-- http://domoticx.com/terminal-codes-ansivt100/#:~:text=A%20terminal%20control%20code%20is,the%20application%2C%20it's%20nothing%20special.
+bright, dim, underline, blink, invert, hidden, fgBlack, fgRed, fgGreen, fgYellow, fgBlue, fgMagenta, fgCyan, fgWhite, bgBlack, bgRed, bgGreen, bgYellow, bgBlue, bgMagenta, bgCyan, bgWhite :: String -> String
+bright    s = "\x1b[1m"  ++ s ++ "\x1b[21m"
+dim       s = "\x1b[2m"  ++ s ++ "\x1b[22m"
+underline s = "\x1b[4m"  ++ s ++ "\x1b[24m"
+blink     s = "\x1b[5m"  ++ s ++ "\x1b[25m"
+invert    s = "\x1b[7m"  ++ s ++ "\x1b[27m"
+hidden    s = "\x1b[8m"  ++ s ++ "\x1b[28m"
+fgBlack   s = "\x1b[30m" ++ s ++ "\x1b[39m"
+fgRed     s = "\x1b[31m" ++ s ++ "\x1b[39m"
+fgGreen   s = "\x1b[32m" ++ s ++ "\x1b[39m"
+fgYellow  s = "\x1b[33m" ++ s ++ "\x1b[39m"
+fgBlue    s = "\x1b[34m" ++ s ++ "\x1b[39m"
+fgMagenta s = "\x1b[35m" ++ s ++ "\x1b[39m"
+fgCyan    s = "\x1b[36m" ++ s ++ "\x1b[39m"
+fgWhite   s = "\x1b[37m" ++ s ++ "\x1b[39m"
+bgBlack   s = "\x1b[40m" ++ s ++ "\x1b[49m"
+bgRed     s = "\x1b[41m" ++ s ++ "\x1b[49m"
+bgGreen   s = "\x1b[42m" ++ s ++ "\x1b[49m"
+bgYellow  s = "\x1b[43m" ++ s ++ "\x1b[49m"
+bgBlue    s = "\x1b[44m" ++ s ++ "\x1b[49m"
+bgMagenta s = "\x1b[45m" ++ s ++ "\x1b[49m"
+bgCyan    s = "\x1b[46m" ++ s ++ "\x1b[49m"
+bgWhite   s = "\x1b[47m" ++ s ++ "\x1b[49m"
+resetColours :: IO ()
+resetColours = putStrLn "\x1b[0m"
