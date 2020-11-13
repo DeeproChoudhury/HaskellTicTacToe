@@ -30,6 +30,12 @@ tryMoveTestCases
                                 X,Taken O,Taken X,Empty,Taken O],4))
     ]
 
+boardTestCases
+  = [
+    ([Taken O, Taken X, Taken O, Taken O, Taken X, Taken O, Taken X, Taken O, Taken X], 3) 
+    ==> (Just "Draw")
+  ] 
+
 -- You can add your own test cases above
 
 allTestCases
@@ -40,6 +46,8 @@ allTestCases
                parsePositionTestCases
     , TestCase "tryMove" (uncurry3 tryMove)
                tryMoveTestCases
+    , TestCase "gameOver'" (gameOver')
+               boardTestCases
     ]
 
 
