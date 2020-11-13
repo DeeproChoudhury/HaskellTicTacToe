@@ -122,6 +122,7 @@ swapPlayer O = X
 --For use in prettyPrint
 --Added spaces at the end because calling intersperse after the 
 --concatenation of printCell and cells messes up compilation with colours
+--Shows X as red and O as magenta
 printCell :: Cell -> String
 printCell Empty = "- "
 printCell (Taken x)
