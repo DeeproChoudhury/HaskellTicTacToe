@@ -123,7 +123,7 @@ swapPlayer O = X
 --Added spaces at the end because calling intersperse after the 
 --concatenation of printCell and cells messes up compilation with colours
 --Shows X as red and O as magenta
---Added underline and | to create clear grid
+--Added underline and '|' to create clear grid
 printCell :: Cell -> String
 printCell Empty = "\x1b[4m" ++ underline("|" ++ " - " ++ "|") ++ "\x1b[24m"
 printCell (Taken x)
