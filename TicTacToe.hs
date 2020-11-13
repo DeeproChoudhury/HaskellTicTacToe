@@ -4,6 +4,7 @@ import Data.Char
 import Data.Maybe
 import Data.List
 import Text.Read
+--Imported System.IO so I could use hFlush
 import System.IO
 
 -------------------------------------------------------------------
@@ -75,7 +76,7 @@ gameOver :: Board -> Bool
 gameOver n
    = or (map (any p) [rows n, cols n, diags n])
 
---Checks to see who won
+--Enhanced gameOver which checks to see who won
 gameOver' :: Board -> Maybe String
 gameOver' b
   | elem [Taken X] e            = Just "Win X"
@@ -103,7 +104,7 @@ parsePosition s
 
 tryMove :: Player -> Position -> Board -> Maybe Board
 tryMove m p b
-  | (inbounds p) && (checkCell (fst b !! index)) = Just (replace index (Taken m) (fst b), snd b)
+  | (inbounds p) && (checkCell $ fst b !! index) = Just (replace index (Taken m) (fst b), snd b)
   | otherwise = Nothing
   where
     index = (fst p) * (snd b) + (snd p)  
@@ -112,9 +113,15 @@ tryMove m p b
     checkCell Empty = True
     checkCell _     = False
 
+--Makes sure that the next turn is the opponent's move
 swapPlayer :: Player -> Player
 swapPlayer X = O 
 swapPlayer O = X
+
+--Function specifies what values in the board should be shown as
+printCell :: Cell -> String
+printCell Empty = "-"
+printCell (Taken x) = show x
 
 
 -------------------------------------------------------------------
@@ -179,6 +186,7 @@ playGame b pl
           do
             putStrLn $ "Player:  " ++ show pl
             prettyPrint b
+            --Plays game with opponent's move and updated board
             takeTurn b pl >>= flip playGame (swapPlayer pl)
 
 -- Print a welcome message, read the board dimension, invoke playGame and
@@ -190,18 +198,14 @@ main
       -- Get board size
       putStrFlush "Enter the board size (N > 2): "
       n <- doParseAction getN "Invalid N size, try again: "
-      -- Get First Player
+      --Get First Player
       --putStrFlush "Which player should go first? X or O: "
       --p <- doParseAction getFirstPlayer "Please select either X or O: "
       
       -- Play the game
       playGame (replicate (n*n) Empty, n) X
       putStrLn "Thank you for playing"
-      
-      
-printCell :: Cell -> String
-printCell Empty = "-"
-printCell (Taken x) = show x
+
 
 getN str
   = filterMaybe (\i -> i > 2) (readMaybe str :: Maybe Int)

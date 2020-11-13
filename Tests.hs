@@ -30,7 +30,8 @@ tryMoveTestCases
                                 X,Taken O,Taken X,Empty,Taken O],4))
     ]
 
-boardTestCases
+--Added by me to test enhanced gameOver' function
+gameOver'TestCases
   = [
     ([Taken O, Taken X, Taken O, Taken O, Taken X, Taken O, Taken X, Taken O, Taken X], 3) 
     ==> (Just "Draw")
@@ -47,7 +48,7 @@ allTestCases
     , TestCase "tryMove" (uncurry3 tryMove)
                tryMoveTestCases
     , TestCase "gameOver'" (gameOver')
-               boardTestCases
+               gameOver'TestCases
     ]
 
 
